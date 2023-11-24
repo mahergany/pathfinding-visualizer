@@ -9,13 +9,13 @@ export default class Node extends Component {
     }
 
     render() {
-        const { isFinish, isStart } = this.props;
-        const extraClassName = isFinish
+        const { isFinish, isStart } = this.props; // getting initial state from main
+        const extraClassName = isFinish // the addon to the class name
             ? 'node-finish'
             : isStart
                 ? 'node-start'
                 : '';
-        return <div className={`node ${extraClassName}`}></div>;
+        return <div className={`node ${extraClassName}`}></div>; // ion get this cuz for the start node, wouldnt the classname end up being node node-start (and such a class hasnt been declared)
     }
 }
 
