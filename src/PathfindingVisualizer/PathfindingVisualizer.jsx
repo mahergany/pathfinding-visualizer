@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Node from './Node/Node';
+import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 
 import './PathfindingVisualizer.css';
 
@@ -31,7 +32,30 @@ export default class PathfindingVisualizer extends Component {
 
 
     visualzeDijkstra() {
+        const { grid } = this.state;
+        const visitedNodes = dijkstra(grid, grid[START_NODE_ROW][START_NODE_COL], grid[END_NODE_ROW][END_NODE_COL]);
+        const nodesInShortestPathOrder = getNodesInShortestPathOrder(grid[END_NODE_ROW][END_NODE_COL]);
 
+        //to animate we run a loop and shift visitedNodes array until it's empty
+        for (let i = 0; i <= visitedNodes.length; i++) {
+            if (i == visitedNodes.length)//once we reach the last node, animate the shortest path
+            {
+                setTimeout(() => {
+                    for (let j = 0; j < nodesInShortestPathOrder.length; j++) {
+                        const node = nodesInShortestPathOrder[i];
+                        document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-shortest-path';
+                    }
+                }, 50 * i)
+                return;
+            }
+
+            //change the class name of the current node being iterated for its color properties to change
+            setTimeout(() => {
+                const node = visitedNodes[i];
+                document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
+            }, 10 * i);
+
+        }
     }
 
     createNode = ((row, col) => {
@@ -41,6 +65,7 @@ export default class PathfindingVisualizer extends Component {
             isStart: row == START_NODE_ROW && col == START_NODE_COL,
             isFinish: row == END_NODE_ROW && col == END_NODE_COL,
             distance: Infinity,
+            isVisited: false,
             isWall: false,
             previousNode: null,
         };
@@ -53,7 +78,7 @@ export default class PathfindingVisualizer extends Component {
         return (
             <>
                 <button onClick={() => this.visualizeDijkstra()}>
-                    Visualize Dijkstra's
+                    Visualize Dijkstra's Algorithm
                 </button>
                 <div className="grid">
                     {nodes.map((row, rowId) => {
