@@ -14,18 +14,22 @@ export function dijkstra(grid, startNode, finishNode) {
     //all the unvisited nodes (initially has all the nodes in the grid)
     const unvisitedNodes = getAllNodes(grid);
 
-    while (unvisitedNodes.length != 0) {
+    while (unvisitedNodes.length !== 0) {
+
+        sortNodesByDistance(unvisitedNodes);
+        const nearestNode = unvisitedNodes.shift();
 
         //the node with the smallest distance
-        const nearestNode = (unvisitedNodes) => {     //sorting the unvisited nodes array in ascending order of distance
-            unvisitedNodes.sort((nodeA, nodeB) => {
-                if (nodeA.distance > nodeB.distance) return 1;
-                else if (nodeA.distance < nodeB.distance) return -1;
-                return 0;
-            }
-            )
-            return unvisitedNodes.shift(); //returns node with smallest distance and removes from unvisitednodes
-        }
+        // const nearestNode = (unvisitedNodes) => {     //sorting the unvisited nodes array in ascending order of distance
+        //     unvisitedNodes.sort((nodeA, nodeB) => {
+        //         if (nodeA.distance > nodeB.distance) return 1;
+        //         else if (nodeA.distance < nodeB.distance) return -1;
+        //         return 0;
+        //     }
+        //     )
+        //     return unvisitedNodes.shift(); //returns node with smallest distance and removes from unvisitednodes
+        // }
+
         //on encountering a wall, we skip that node and move on to the next nearest
         if (nearestNode.isWall) continue;
         //if the nearest distance is infinity, there is no further path
@@ -35,9 +39,13 @@ export function dijkstra(grid, startNode, finishNode) {
         visitedNodesInOrder.push(nearestNode);
 
         //if we reach the last node
-        if (nearestNode == finishNode) return visitedNodesInOrder;
+        if (nearestNode === finishNode) return visitedNodesInOrder;
         updateUnvisitedNeighbors(nearestNode, grid);
     }
+}
+
+function sortNodesByDistance(unvisitedNodes) {
+    unvisitedNodes.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
 }
 
 //returns all the nodes in the grid by extracting them through each row of the grid
@@ -60,9 +68,13 @@ function updateUnvisitedNeighbors(node, grid) {
         if (row < grid.length - 1) neighbors.push(grid[row + 1][col]); //checking for and pushing node below
         if (col > 0) neighbors.push(grid[row][col - 1]); //checking for and pushing node to the left
         if (col < grid[0].length - 1) neighbors.push(grid[row][col + 1]);//checking for and pushing node to the right
-    }
 
-    for (const neighbor of unvisitedNeighbors) { //like a for each loop
+        return neighbors.filter(neighbor => !neighbor.isVisited);
+    };
+
+    const n = unvisitedNeighbors(node, grid);
+
+    for (const neighbor of n) { //like a for each loop
 
         //if the distance of a neighboring node is greater than the new potential distance
         //we update the distance
@@ -81,7 +93,9 @@ export function getNodesInShortestPathOrder(finishNode) {
     let currentNode = finishNode;
     while (currentNode !== null) {
         nodesInShortestPathOrder.unshift(currentNode);
+        console.log("unshifting");
         currentNode = currentNode.previousNode;
     }
     return nodesInShortestPathOrder;
 }
+

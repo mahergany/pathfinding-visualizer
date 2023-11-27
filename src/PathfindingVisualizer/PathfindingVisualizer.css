@@ -1,3 +1,8 @@
 .grid {
     margin: 100px 0 0;
 }
+
+.menu {
+    top: 0;
+    background-color: pink;
+}

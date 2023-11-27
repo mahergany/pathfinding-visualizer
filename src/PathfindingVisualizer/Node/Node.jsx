@@ -9,13 +9,33 @@ export default class Node extends Component {
     }
 
     render() {
-        const { isFinish, isStart } = this.props; // getting initial state from main
+        const {
+            row,
+            col,
+            isFinish,
+            isStart,
+            isWall,
+            onMouseDown,
+            onMouseEnter,
+            onMouseUp,
+        } = this.props; // getting initial state from main
         const extraClassName = isFinish // the addon to the class name
             ? 'node-finish'
             : isStart
                 ? 'node-start'
-                : '';
-        return <div className={`node ${extraClassName}`}></div>; // ion get this cuz for the start node, wouldnt the classname end up being node node-start (and such a class hasnt been declared)
+                : isWall
+                    ? 'node-wall'
+                    : '';
+
+        return (
+            <div
+                id={`node-${row}-${col}`}// ion get this cuz for the start node, wouldnt the classname end up being node node-start (and such a class hasnt been declared)
+                className={`node ${extraClassName}`}
+                onMouseDown={() => onMouseDown(row, col)}
+                onMouseEnter={() => onMouseEnter(row, col)}
+                onMouseUp={() => onMouseUp()}
+            ></div>
+        )
     }
 }
 
