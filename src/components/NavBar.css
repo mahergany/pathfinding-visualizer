@@ -1,0 +1,55 @@
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    color: rgb(46, 46, 139);
+
+}
+
+/* :root {
+    --mainColor: #29335c;
+    --mainColorLight: lightblue;
+    --secondaryColor: red;
+    --textColor: white;
+}
+
+header {
+    display: flex;
+    text-align: center;
+    align-items: center;
+    justify-content: space-between;
+    height: 80px;
+    padding: 0 2rem;
+    background-color: var(--mainColor);
+    color: var(--textColor);
+} */
+
+.navBar-container {
+    display: flex;
+    background-color: lightblue;
+    padding: 40px;
+}
+
+.algoLabel {
+    padding-left: 300px;
+    font-size: 25;
+}
+
+.speedLabel {
+    margin-left: 200px;
+    font-size: 25;
+}
+
+.algos {
+    margin-left: 10px;
+}
+
+.speeds {
+    margin-left: 10px;
+}
+
+.clearBtn {
+
+    margin-left: 150px;
+    padding: 10px 16px;
+}

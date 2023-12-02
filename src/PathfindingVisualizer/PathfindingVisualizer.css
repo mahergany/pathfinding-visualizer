@@ -1,8 +1,22 @@
 .grid {
-    margin: 100px 0 0;
+    margin: 50px 0 0;
+    padding-bottom: 50px;
 }
 
+/* 
 .menu {
     top: 0;
     background-color: pink;
+} */
+
+.visualizeButton {
+    background-color: black;
+    color: white;
+    border: none;
+    text-align: center;
+    padding: 25px 16px;
+    position: relative;
+    bottom: 50px;
+    top: 20px;
+    font-size: large;
 }
