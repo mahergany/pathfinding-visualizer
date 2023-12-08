@@ -16,7 +16,7 @@ export default class NavBar extends Component {
 
     render() {
 
-        const { onClick } = this.props;
+        const { onClick, changeAlgo, changeSpeed } = this.props;
         return (
             <>
                 <nav className='navBar'>
@@ -24,11 +24,14 @@ export default class NavBar extends Component {
                         <h1>Pathfinding Visualizer</h1>
                         <label className='algoLabel'>Choose Algorithm: </label>
                         <select className='algos'
-                            onChange={(e) => {
-                                this.setState({ currentAlgo: e.target.value }, () => {
-                                    console.log("currentAlgo: " + this.state.currentAlgo);
-                                });
-                            }}
+                            // onChange={(e) => {
+                            //     this.setState({ currentAlgo: e.target.value }, () => {
+                            //         console.log("currentAlgo: " + this.state.currentAlgo);
+                            //     });
+                            // }}
+                            onChange={(e) =>
+                                changeAlgo(e.target.value)
+                            }
                         >
                             <option>Dijkstra's</option>
                             <option>A*</option>
@@ -38,9 +41,10 @@ export default class NavBar extends Component {
                         <label className='speedLabel'>Choose Speed:     </label>
                         <select className='speeds'
                             onChange={(e) => {
-                                this.setState({ currentSpeed: e.target.value }, () => {
-                                    console.log("currentSpeed: " + this.state.currentSpeed);
-                                });
+                                // this.setState({ currentSpeed: e.target.value }, () => {
+                                //     console.log("currentSpeed: " + this.state.currentSpeed);
+                                // });
+                                changeSpeed(e.target.value)
                             }}
                         >
                             <option>0.5x</option>

@@ -33,7 +33,7 @@ export function dijkstra(grid, startNode, finishNode) {
         //on encountering a wall, we skip that node and move on to the next nearest
         if (nearestNode.isWall) continue;
         //if the nearest distance is infinity, there is no further path
-        if (nearestNode.distance == Infinity) return visitedNodesInOrder;
+        if (nearestNode.distance === Infinity) return visitedNodesInOrder;
         //push nearestNode into visited
         nearestNode.isVisited = true;
         visitedNodesInOrder.push(nearestNode);
@@ -93,7 +93,6 @@ export function getNodesInShortestPathOrder(finishNode) {
     let currentNode = finishNode;
     while (currentNode !== null) {
         nodesInShortestPathOrder.unshift(currentNode);
-        console.log("unshifting");
         currentNode = currentNode.previousNode;
     }
     return nodesInShortestPathOrder;
