@@ -35,6 +35,7 @@ export default class NavBar extends Component {
                         >
                             <option>Dijkstra's</option>
                             <option>A*</option>
+                            <option>Breadth First Search</option>
                             <option>LaCAM</option>
                             <option>Dynamic Fusion</option>
                         </select>

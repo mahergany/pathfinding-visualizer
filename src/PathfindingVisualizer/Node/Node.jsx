@@ -19,7 +19,7 @@ export default class Node extends Component {
             previousNode,
             onMouseDown,
             onMouseEnter,
-            // neighbors,
+            neighbors,
             onMouseUp,
             draggable,
             handleOnDrag,

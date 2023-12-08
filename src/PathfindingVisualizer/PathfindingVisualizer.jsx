@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Node from './Node/Node';
 import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 import { astar } from '../algorithms/astar';
+import { bfs } from '../algorithms/bfs';
 import { EventHandler } from 'react';
 
 import './PathfindingVisualizer.css';
@@ -37,6 +38,7 @@ export default class PathfindingVisualizer extends Component {
         this.handleDragOver = this.handleDragOver.bind(this);
         this.changeAlgo = this.changeAlgo.bind(this);
         this.changeSpeed = this.changeSpeed.bind(this);
+        // this.setNeighbors = this.setNeighbors.bind(this);
     }
 
     //this approach works as the grid is being mounted
@@ -63,26 +65,34 @@ export default class PathfindingVisualizer extends Component {
         for (let row = 0; row < 20; row++) {
             const currentRow = [];
             for (let col = 0; col < 50; col++) {
-                currentRow.push(this.createNode(row, col));
+                const currentNode = this.createNode(row, col)
+                currentRow.push(currentNode);
             }
             grid.push(currentRow);
-            // console.log(row, "  done");
         }
+        // for (let row = 0; row < 20; row++) {
+        //     for (let col = 0; col < 50; col++) {
+        //         const currentNode = grid[row][col];
+        //         this.setNeighbors(currentNode, row, col, grid);
+        //     }
+        // }
         return grid;
     }
 
-    // setNeighbors = (node, row, col) => {
-    //     const { grid } = this.state;
-    //     // node.neighbors.push(grid[row+1][col])
-    //     if (row > 0) node.neighbors.push(grid[row - 1][col]); //checking for and pushing node above
-    //     if (row < grid.length - 1) node.neighbors.push(grid[row + 1][col]); //checking for and pushing node below
-    //     if (col > 0) node.neighbors.push(grid[row][col - 1]); //checking for and pushing node to the left
-    //     if (col < grid[0].length - 1) node.neighbors.push(grid[row][col + 1]);//checking for and pushing node to the right
+    //clashing with the rest of the code bcuz circular objects cant be converted to a json string
+    // setNeighbors = (node, row, col, grid) => {
+    //     const neighbors = [];
+    //     if (row > 0) neighbors.push(grid[row - 1][col]); //checking for and pushing node above
+    //     if (row < 18) neighbors.push(grid[row + 1][col]); //checking for and pushing node below
+    //     if (col > 0) neighbors.push(grid[row][col - 1]); //checking for and pushing node to the left
+    //     if (col < 49) neighbors.push(grid[row][col + 1]);//checking for and pushing node to the right
+    //     node.neighbors = neighbors;
     // }
 
     componentDidMount() {
         const grid = this.getInitialGrid();
         this.setState({ grid });
+        // this.getInitialGrid();
     }
 
     handleMouseDown(row, col) {
@@ -95,7 +105,6 @@ export default class PathfindingVisualizer extends Component {
 
     handleMouseEnter(row, col) {
         if (!this.state.mouseIsPressed || this.state.grid[row][col].isStart || this.state.grid[row][col].isFinish) return;
-        // if (!this.state.mouseIsPressed || (this.START_NODE_COL === null) || (this.END_NODE_COL === null)) return;
         const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
         this.setState({ grid: newGrid });
     }
@@ -107,7 +116,6 @@ export default class PathfindingVisualizer extends Component {
 
     handleOnDrag(e, row, col) {
         const { grid } = this.state;
-        // $(jQuery.e.props.push('dataTransfer'));
         // Save the current node being dragged
         e.dataTransfer.setData("node", JSON.stringify(grid[row][col]));
         // Set the dragging state to true
@@ -247,14 +255,59 @@ export default class PathfindingVisualizer extends Component {
             this.visualizeDijkstra();
         }
         else if (currentAlgo === "A*") {
-            console.log("state a star confirmed");
+            // console.log("state a star confirmed");
             this.visualizeAStar();
+        }
+        else if (currentAlgo === "Breadth First Search") {
+            console.log("state bfs confirmed");
+            this.visualize(currentAlgo);
         }
     }
 
+    visualize(currentAlgo) {
+        console.log("visualize a star reached");
+        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW } = this.state;
+        const updatedGrid = grid.map(row => row.slice());
+
+        const startNode = updatedGrid[START_NODE_ROW][START_NODE_COL];
+        const finishNode = updatedGrid[END_NODE_ROW][END_NODE_COL];
+        // console.log(startNode, finishNode);
+        const visitedNodes = bfs(updatedGrid, startNode, finishNode, 20, 50);
+        // console.log(visitedNodes)
+        const path = getNodesInShortestPathOrder(finishNode);
+        console.log(path);
+        this.animateDijkstra(visitedNodes, path);
+    }
+
     changeAlgo(newAlgo) {
+        //when the algo is changed, the grid is reset but the walls, the starting and the ending nodes are retained
         this.setState({ currentAlgo: newAlgo }, () => {
             // console.log("currentAlgo: " + this.state.currentAlgo);
+            const { grid, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW } = this.state;
+            for (let row = 0; row < 20; row++) {
+                //const currentRow=[];
+                for (let col = 0; col < 50; col++) {
+                    const currentNode = grid[row][col];
+                    if (row == START_NODE_ROW && col == START_NODE_COL) {
+                        currentNode.isStart = true;
+                        // document.getElementById(`node-${row}-${col}`).className = 'node-finish';
+                    }
+                    else if (row == END_NODE_ROW && col == END_NODE_COL) {
+                        currentNode.isFinish = true;
+                        // document.getElementById(`node-${row}-${col}`).className = 'node-start';
+                    }
+                    else if (!currentNode.isWall) {
+                        document.getElementById(`node-${row}-${col}`).className = 'node-unvisited';
+                        // document.getElementById(`node-${row}-${col}`).className = 'node';
+                    }
+                    currentNode.isVisited = false;
+                    currentNode.previousNode = null;
+                    currentNode.f = Infinity;
+                    currentNode.g = 0;
+                    currentNode.h = 0;
+                    currentNode.distance = Infinity;
+                }
+            }
         });
     }
 
@@ -314,43 +367,6 @@ export default class PathfindingVisualizer extends Component {
 
 }
 
-// const getInitialGrid = () => {
-//     const grid = [];
-//     for (let row = 0; row < 20; row++) {
-//         const currentRow = [];
-//         for (let col = 0; col < 50; col++) {
-//             currentRow.push(createNode(row, col));
-//         }
-//         grid.push(currentRow);
-//     }
-//     return grid;
-// }
-
-
-// const createNode = (row, col) => {
-//     const { START_NODE_ROW, START_NODE_COL, END_NODE_ROW, END_NODE_COL } = this.state;
-//     return {
-//         col,  //since the parameters passed are not the column and row numbers 
-//         row,  //but the indices of the array where they lie
-//         isStart: row == START_NODE_ROW && col == START_NODE_COL,
-//         isFinish: row == END_NODE_ROW && col == END_NODE_COL,
-//         distance: Infinity,
-//         isVisited: false,
-//         isWall: false,
-//         previousNode: null,
-//         f: 0, //f,g,h for a*
-//         g: 0,
-//         h: 0
-//     };
-// }
-
-// const getNewGridWithWallToggled = (grid, row, col) => {
-//     const newGrid = grid.slice();
-//     const node = newGrid[row][col];
-//     const newNode = { ...node, isWall: !node.isWall, };
-//     newGrid[row][col] = newNode;
-//     return newGrid;
-// }
 
 const getNewGridWithWallToggled = (grid, row, col) => {
     const newGrid = grid.map(row => row.slice());
