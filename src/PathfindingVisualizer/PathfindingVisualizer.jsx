@@ -3,10 +3,14 @@ import Node from './Node/Node';
 import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 import { astar } from '../algorithms/astar';
 import { bfs } from '../algorithms/bfs';
+import { voronoiGeneration } from '../algorithms/dynamicfusion';
 import { EventHandler } from 'react';
+import { motion } from 'framer-motion';
+
 
 import './PathfindingVisualizer.css';
 import NavBar from '../components/NavBar';
+// import Cursor from '../components/Cursor';
 
 //subtract one from each so that there is consistency with the array form
 // var START_NODE_ROW = 9
@@ -27,6 +31,9 @@ export default class PathfindingVisualizer extends Component {
             END_NODE_COL: 39,
             currentAlgo: "Dijkstra's",
             currentSpeed: "1x",
+            currentRows: 20,
+            currentColumns: 50,
+            mousePosition: { x: 0, y: 0 },
         };
         this.handleOnDrag = this.handleOnDrag.bind(this);
         this.createNode = this.createNode.bind(this);
@@ -38,7 +45,26 @@ export default class PathfindingVisualizer extends Component {
         this.handleDragOver = this.handleDragOver.bind(this);
         this.changeAlgo = this.changeAlgo.bind(this);
         this.changeSpeed = this.changeSpeed.bind(this);
+        this.setMousePosition = this.setMousePosition.bind(this);
         // this.setNeighbors = this.setNeighbors.bind(this);
+    }
+
+    setMousePosition(e) {
+        const x = e.clientX;
+        const y = e.clientY;
+        this.setState({ mousePosition: { x, y } });
+    }
+
+    useEffect = () => {
+        const mouseMove = (e) => {
+            this.setMousePosition(e);
+        }
+
+        window.addEventListener("mousemove", mouseMove);
+
+        return () => {
+            window.removeEventListener("mousemove", mouseMove);
+        }
     }
 
     //this approach works as the grid is being mounted
@@ -55,18 +81,24 @@ export default class PathfindingVisualizer extends Component {
             // neighbors: [],
             f: Infinity,
             g: 0,
-            h: 0
+            h: 0,
+            xCoord: 0,
+            yCoord: 0,
         };
     }
 
 
     getInitialGrid = () => {
+        const { currentRows, currentColumns } = this.state;
         const grid = [];
         for (let row = 0; row < 20; row++) {
             const currentRow = [];
             for (let col = 0; col < 50; col++) {
                 const currentNode = this.createNode(row, col)
+                currentNode.xCoord = currentRows - row - 1;
+                currentNode.yCoord = col;
                 currentRow.push(currentNode);
+                // console.log(currentNode.xCoord, currentNode.yCoord);
             }
             grid.push(currentRow);
         }
@@ -92,14 +124,26 @@ export default class PathfindingVisualizer extends Component {
     componentDidMount() {
         const grid = this.getInitialGrid();
         this.setState({ grid });
-        // this.getInitialGrid();
     }
+
+
+    componentDidUpdate() {
+        // const mouseMove = (e) => {
+        //     console.log(e);
+        // }
+        // window.addEventListener("mousemove", mouseMove);
+
+    }
+
+    // componentWillUnmount() {
+    // }
 
     handleMouseDown(row, col) {
         if ((row === this.state.START_NODE_ROW && col === this.state.START_NODE_COL) || (col === this.state.END_NODE_COL && row === this.state.END_NODE_ROW)) return;
         else {
             const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
             this.setState({ grid: newGrid, mouseIsPressed: true })
+            // this.cursor.hide(); // Hide the cursor when mouse is pressed
         }
     }
 
@@ -159,11 +203,21 @@ export default class PathfindingVisualizer extends Component {
     animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
         console.log("animation started");
         // working till here 
+        const { currentSpeed } = this.state;
+        let speed;
+        if (currentSpeed == "1x")
+            speed = 10;
+        else if (currentSpeed == "2x")
+            speed = 2;
+        else if (currentSpeed == "0.5x")
+            speed = 15;
+        else if (currentSpeed == "1.5x")
+            speed = 5;
         for (let i = 0; i <= visitedNodesInOrder.length; i++) {
             if (i === visitedNodesInOrder.length) {
                 setTimeout(() => {
                     this.animateShortestPath(nodesInShortestPathOrder);
-                }, 5 * i);
+                }, speed * i);
                 return;
             }
             setTimeout(() => {
@@ -171,7 +225,7 @@ export default class PathfindingVisualizer extends Component {
                 //so that the colors of the start and finish ones don't get marked
                 if (!node.isFinish && !node.isStart)
                     document.getElementById(`node-${node.row}-${node.col}`).className = 'node node-visited';
-            }, 5 * i);
+            }, speed * i);
         }
     }
 
@@ -207,11 +261,11 @@ export default class PathfindingVisualizer extends Component {
 
         const startNode = updatedGrid[START_NODE_ROW][START_NODE_COL];
         const finishNode = updatedGrid[END_NODE_ROW][END_NODE_COL];
-        console.log(startNode, finishNode);
+        // console.log(startNode, finishNode);
         const visitedNodes = astar(updatedGrid, startNode, finishNode);
-        console.log(visitedNodes)
+        // console.log(visitedNodes)
         const path = getNodesInShortestPathOrder(finishNode);
-        console.log(path);
+        // console.log(path);
         this.animateDijkstra(visitedNodes, path);
     }
 
@@ -249,6 +303,7 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleOnVisualize() {
+        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW } = this.state;
         const { currentAlgo } = this.state;
         // console.log(currentAlgo);
         if (currentAlgo === "Dijkstra's") {
@@ -262,10 +317,15 @@ export default class PathfindingVisualizer extends Component {
             console.log("state bfs confirmed");
             this.visualize(currentAlgo);
         }
+        else if (currentAlgo === "Dynamic Fusion") {
+            console.log("df confirmed");
+            const obstacles = voronoiGeneration(grid, 20, 50);
+            console.log(obstacles);
+        }
+
     }
 
     visualize(currentAlgo) {
-        console.log("visualize a star reached");
         const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW } = this.state;
         const updatedGrid = grid.map(row => row.slice());
 
@@ -315,24 +375,33 @@ export default class PathfindingVisualizer extends Component {
         this.setState({ currentSpeed: newSpeed });
     }
 
+
     render() {
 
-        const { grid, mouseIsPressed } = this.state;
+        const { grid, mouseIsPressed, mousePosition } = this.state;
+        const variants = {
+            default: {
+                x: mousePosition.x - 12,
+                y: mousePosition.y - 12
+            }
+        }
 
         return (
             <>
-                <NavBar currentAlgo={this.currentAlgo}
+                {/* <Cursor></Cursor> */}
+                <NavBar className="NavBar" currentAlgo={this.currentAlgo}
                     currentSpeed={this.currentSpeed}
                     setState={this.setState}
                     onClick={() => this.handleClearBtnClick()}
                     changeSpeed={this.changeSpeed}
                     changeAlgo={this.changeAlgo}
                 />
-                <div className="menu"></div>
+                {/* <div className="menu"></div> */}
                 <button className='visualizeButton' onClick={() => this.handleOnVisualize()}>
                     Visualize
                 </button>
-                <div className="grid">
+                <div className="grid"
+                    onMouseMove={this.setMousePosition}>
                     {grid.map((row, rowIdx) => {
                         return (<div key={rowIdx}>
                             {row.map((node, nodeIdx) => {
@@ -361,6 +430,11 @@ export default class PathfindingVisualizer extends Component {
                         );
                     })}
                 </div>
+                <motion.div className='cursor'
+                    variants={variants}
+                    animate="default"
+                >
+                </motion.div>
             </>
         );
     }

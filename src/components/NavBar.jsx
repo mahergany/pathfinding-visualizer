@@ -16,12 +16,16 @@ export default class NavBar extends Component {
 
     render() {
 
-        const { onClick, changeAlgo, changeSpeed } = this.props;
+        const { onClick, changeAlgo, changeSpeed, handleRowChange, handleColumnChange } = this.props;
         return (
             <>
                 <nav className='navBar'>
                     <div className='navBar-container'>
                         <h1>Pathfinding Visualizer</h1>
+                        {/* <label>Rows:
+                            <input type="text"
+                                onChange={(e) => this.handleRowChange(e.target.value)}></input>
+                        </label> */}
                         <label className='algoLabel'>Choose Algorithm: </label>
                         <select className='algos'
                             // onChange={(e) => {
@@ -41,6 +45,7 @@ export default class NavBar extends Component {
                         </select>
                         <label className='speedLabel'>Choose Speed:     </label>
                         <select className='speeds'
+
                             onChange={(e) => {
                                 // this.setState({ currentSpeed: e.target.value }, () => {
                                 //     console.log("currentSpeed: " + this.state.currentSpeed);
@@ -49,7 +54,8 @@ export default class NavBar extends Component {
                             }}
                         >
                             <option>0.5x</option>
-                            <option>1x</option>
+                            <option selected="selected">1x</option>
+                            <option>1.5x</option>
                             <option>2x</option>
                         </select>
                         <button className='clearBtn'

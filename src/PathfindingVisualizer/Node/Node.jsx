@@ -28,6 +28,8 @@ export default class Node extends Component {
             onDragStart,
             onDragOver,
             onDrop,
+            xCoord,
+            yCoord,
         } = this.props; // getting initial state from main
         const extraClassName = isFinish // the addon to the class name
             ? 'node-finish'
