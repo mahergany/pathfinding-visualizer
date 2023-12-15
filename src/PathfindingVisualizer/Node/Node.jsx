@@ -30,6 +30,9 @@ export default class Node extends Component {
             onDrop,
             xCoord,
             yCoord,
+            currentRows,
+            currentColumns,
+            nodeSize,
         } = this.props; // getting initial state from main
         const extraClassName = isFinish // the addon to the class name
             ? 'node-finish'
@@ -41,10 +44,22 @@ export default class Node extends Component {
         const isDraggable = isFinish ? 'true' : isStart ? 'true' : 'false';
         const isDroppable = isDraggable ? 'false' : isWall ? 'false' : 'true';
 
+        // const nodeStyle = {
+        //     width: `${500 / currentRows}px`,
+        //     height: `${500 / currentRows}px`,
+        // };
+
+        const nodeStyle = {
+            // width: `${nodeSize}px` || '25px',  // Use nodeSize prop to set width
+            width: `${nodeSize}px`,
+            height: `${nodeSize}px`,  // Use nodeSize prop to set height
+        };
+
         return (
             <div
                 id={`node-${row}-${col}`}// ion get this cuz for the start node, wouldnt the classname end up being node node-start (and such a class hasnt been declared)
                 className={`node ${extraClassName}`}
+                style={nodeStyle}
                 onMouseDown={() => onMouseDown(row, col)}
                 onMouseEnter={() => onMouseEnter(row, col)}
                 onMouseUp={() => onMouseUp()}

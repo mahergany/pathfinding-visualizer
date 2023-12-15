@@ -1,8 +1,15 @@
+/* .App {
+  text-align: center;
+} */
+
 .App {
   text-align: center;
+  /* display: flex; */
+  /* justify-content: flex-start; */
+  /* align-items: flex-start; */
 }
 
-.App-logo {
+/* .App-logo {
   height: 40vmin;
   pointer-events: none;
 }
@@ -11,7 +18,7 @@
   .App-logo {
     animation: App-logo-spin infinite 20s linear;
   }
-}
+} */
 
 .App-header {
   background-color: #282c34;
@@ -24,6 +31,7 @@
   color: white;
 }
 
+/* 
 .App-link {
   color: #61dafb;
 }
@@ -35,4 +43,4 @@
   to {
     transform: rotate(360deg);
   }
-}
+} */

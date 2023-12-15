@@ -3,14 +3,16 @@ import Node from './Node/Node';
 import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 import { astar } from '../algorithms/astar';
 import { bfs } from '../algorithms/bfs';
+// import { lacam } from '../algorithms/lacam';
 import { voronoiGeneration } from '../algorithms/dynamicfusion';
 import { EventHandler } from 'react';
 import { motion } from 'framer-motion';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
+import StatusLog from '../components/StatusLog';
 
 import './PathfindingVisualizer.css';
 import NavBar from '../components/NavBar';
-// import Cursor from '../components/Cursor';
 
 //subtract one from each so that there is consistency with the array form
 // var START_NODE_ROW = 9
@@ -31,9 +33,13 @@ export default class PathfindingVisualizer extends Component {
             END_NODE_COL: 39,
             currentAlgo: "Dijkstra's",
             currentSpeed: "1x",
+            currentNode: 'Wall',
             currentRows: 20,
             currentColumns: 50,
             mousePosition: { x: 0, y: 0 },
+            nodeSize: 20,
+            currentPrompt: [],
+            // multiplePaths: false,
         };
         this.handleOnDrag = this.handleOnDrag.bind(this);
         this.createNode = this.createNode.bind(this);
@@ -46,12 +52,15 @@ export default class PathfindingVisualizer extends Component {
         this.changeAlgo = this.changeAlgo.bind(this);
         this.changeSpeed = this.changeSpeed.bind(this);
         this.setMousePosition = this.setMousePosition.bind(this);
+        this.handleSliderChange = this.handleSliderChange.bind(this);
+        this.handleOnVisualize = this.handleOnVisualize.bind(this);
         // this.setNeighbors = this.setNeighbors.bind(this);
     }
 
     setMousePosition(e) {
         const x = e.clientX;
         const y = e.clientY;
+        // console.log(x, y);
         this.setState({ mousePosition: { x, y } });
     }
 
@@ -91,9 +100,9 @@ export default class PathfindingVisualizer extends Component {
     getInitialGrid = () => {
         const { currentRows, currentColumns } = this.state;
         const grid = [];
-        for (let row = 0; row < 20; row++) {
+        for (let row = 0; row < currentRows; row++) {
             const currentRow = [];
-            for (let col = 0; col < 50; col++) {
+            for (let col = 0; col < currentColumns; col++) {
                 const currentNode = this.createNode(row, col)
                 currentNode.xCoord = currentRows - row - 1;
                 currentNode.yCoord = col;
@@ -102,30 +111,13 @@ export default class PathfindingVisualizer extends Component {
             }
             grid.push(currentRow);
         }
-        // for (let row = 0; row < 20; row++) {
-        //     for (let col = 0; col < 50; col++) {
-        //         const currentNode = grid[row][col];
-        //         this.setNeighbors(currentNode, row, col, grid);
-        //     }
-        // }
         return grid;
     }
-
-    //clashing with the rest of the code bcuz circular objects cant be converted to a json string
-    // setNeighbors = (node, row, col, grid) => {
-    //     const neighbors = [];
-    //     if (row > 0) neighbors.push(grid[row - 1][col]); //checking for and pushing node above
-    //     if (row < 18) neighbors.push(grid[row + 1][col]); //checking for and pushing node below
-    //     if (col > 0) neighbors.push(grid[row][col - 1]); //checking for and pushing node to the left
-    //     if (col < 49) neighbors.push(grid[row][col + 1]);//checking for and pushing node to the right
-    //     node.neighbors = neighbors;
-    // }
 
     componentDidMount() {
         const grid = this.getInitialGrid();
         this.setState({ grid });
     }
-
 
     componentDidUpdate() {
         // const mouseMove = (e) => {
@@ -271,10 +263,10 @@ export default class PathfindingVisualizer extends Component {
 
     handleClearBtnClick() {
         // const newGrid = this.getInitialGrid();
-        const { grid, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW } = this.state;
-        for (let row = 0; row < 20; row++) {
+        const { grid, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW, currentRows, currentColumns } = this.state;
+        for (let row = 0; row < currentRows; row++) {
             //const currentRow=[];
-            for (let col = 0; col < 50; col++) {
+            for (let col = 0; col < currentColumns; col++) {
                 const currentNode = grid[row][col];
                 if (row == START_NODE_ROW && col == START_NODE_COL) {
                     currentNode.isStart = true;
@@ -286,7 +278,6 @@ export default class PathfindingVisualizer extends Component {
                 }
                 else {
                     currentNode.isWall = false;
-
                     document.getElementById(`node-${row}-${col}`).className = 'node-unvisited';
                     // document.getElementById(`node-${row}-${col}`).className = 'node';
                 }
@@ -303,36 +294,52 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleOnVisualize() {
-        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW } = this.state;
+        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW, startNode, finishNode, currentRows, currentColumns, currentPrompt } = this.state;
         const { currentAlgo } = this.state;
-        // console.log(currentAlgo);
+        let timeTaken = 0;
+
         if (currentAlgo === "Dijkstra's") {
+            let start = Date.now();
             this.visualizeDijkstra();
+            timeTaken = Date.now() - start;
         }
         else if (currentAlgo === "A*") {
-            // console.log("state a star confirmed");
+            let start = Date.now();
             this.visualizeAStar();
+            timeTaken = Date.now() - start;
         }
         else if (currentAlgo === "Breadth First Search") {
-            console.log("state bfs confirmed");
+            let start = Date.now();
             this.visualize(currentAlgo);
+            timeTaken = Date.now() - start;
         }
         else if (currentAlgo === "Dynamic Fusion") {
-            console.log("df confirmed");
-            const obstacles = voronoiGeneration(grid, 20, 50);
+            let start = Date.now();
+            const obstacles = voronoiGeneration(grid, currentRows, currentColumns);
             console.log(obstacles);
+            timeTaken = Date.now() - start;
         }
-
+        else if (currentAlgo === "LaCAM") {
+            // this.setState({ multiplePaths: true });
+            //make an option for multiple start and end nodes
+            //assign different colors to each and change their path color asw
+            let start = Date.now();
+            // lacam(grid, startNode, finishNode);
+            timeTaken = Date.now() - start;
+        }
+        currentPrompt.unshift(currentAlgo + " took " + timeTaken);
+        this.setState(currentPrompt);
+        console.log(currentPrompt);
     }
 
     visualize(currentAlgo) {
-        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW } = this.state;
+        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW, currentRows, currentColumns } = this.state;
         const updatedGrid = grid.map(row => row.slice());
 
         const startNode = updatedGrid[START_NODE_ROW][START_NODE_COL];
         const finishNode = updatedGrid[END_NODE_ROW][END_NODE_COL];
         // console.log(startNode, finishNode);
-        const visitedNodes = bfs(updatedGrid, startNode, finishNode, 20, 50);
+        const visitedNodes = bfs(updatedGrid, startNode, finishNode, currentRows, currentColumns);
         // console.log(visitedNodes)
         const path = getNodesInShortestPathOrder(finishNode);
         console.log(path);
@@ -343,10 +350,10 @@ export default class PathfindingVisualizer extends Component {
         //when the algo is changed, the grid is reset but the walls, the starting and the ending nodes are retained
         this.setState({ currentAlgo: newAlgo }, () => {
             // console.log("currentAlgo: " + this.state.currentAlgo);
-            const { grid, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW } = this.state;
-            for (let row = 0; row < 20; row++) {
+            const { grid, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW, currentRows, currentColumns } = this.state;
+            for (let row = 0; row < currentRows; row++) {
                 //const currentRow=[];
-                for (let col = 0; col < 50; col++) {
+                for (let col = 0; col < currentColumns; col++) {
                     const currentNode = grid[row][col];
                     if (row == START_NODE_ROW && col == START_NODE_COL) {
                         currentNode.isStart = true;
@@ -375,10 +382,38 @@ export default class PathfindingVisualizer extends Component {
         this.setState({ currentSpeed: newSpeed });
     }
 
+    changeNode(newNode) {
+        this.setState({ currentNode: newNode });
+    }
+
+    handleSliderChange(event) {
+        // need to redefine start and end nodes
+        // need to redefine size of nodes
+        // need to redefine number of columns
+        const selectedNoOfRows = event.target.value;
+        this.setState({ currentRows: selectedNoOfRows, currentColumns: Math.floor(1000 / (400 / selectedNoOfRows)) }, () => {
+            //, currentColumns: Math.floor(2.5 * event.target.value) ^^^^
+            const { currentRows, currentColumns, START_NODE_COL, START_NODE_ROW, END_NODE_COL, END_NODE_ROW } = this.state;
+            const size = 400 / selectedNoOfRows;
+            // const columns = Math.floor(1000 / size);
+            // const size = Math.min(1500 / currentColumns, 500 / currentRows);
+            // console.log(currentRows, currentColumns, nodeSize);
+            const startRow = Math.floor(currentRows / 2);
+            const startCol = Math.floor(currentColumns / 3);
+            const endRow = Math.floor(currentRows / 2);
+            const endColumn = Math.floor(2 * currentColumns / 3);
+            console.log(currentRows, currentColumns, startRow, startCol, size);
+            this.setState({ START_NODE_COL: startCol, START_NODE_ROW: startRow, END_NODE_COL: endColumn, END_NODE_ROW: endRow, nodeSize: size });
+            // this.handleClearBtnClick();
+            const newGrid = this.getInitialGrid();
+            this.setState({ grid: newGrid });
+        });
+    }
+
 
     render() {
 
-        const { grid, mouseIsPressed, mousePosition } = this.state;
+        const { grid, mouseIsPressed, mousePosition, currentRows, nodeSize, currentPrompt } = this.state;
         const variants = {
             default: {
                 x: mousePosition.x - 12,
@@ -388,53 +423,69 @@ export default class PathfindingVisualizer extends Component {
 
         return (
             <>
-                {/* <Cursor></Cursor> */}
-                <NavBar className="NavBar" currentAlgo={this.currentAlgo}
-                    currentSpeed={this.currentSpeed}
-                    setState={this.setState}
-                    onClick={() => this.handleClearBtnClick()}
-                    changeSpeed={this.changeSpeed}
-                    changeAlgo={this.changeAlgo}
-                />
-                {/* <div className="menu"></div> */}
-                <button className='visualizeButton' onClick={() => this.handleOnVisualize()}>
+                <Router>
+                    <NavBar className="NavBar" currentAlgo={this.currentAlgo}
+                        currentSpeed={this.currentSpeed}
+                        currentRows={currentRows}
+                        currentNode={this.currentNode}
+                        setState={this.setState}
+                        onClick={() => this.handleClearBtnClick()}
+                        changeSpeed={this.changeSpeed}
+                        changeAlgo={this.changeAlgo}
+                        changeNode={this.changeNode}
+                        handleSliderChange={this.handleSliderChange}
+                        handleOnVisualize={this.handleOnVisualize}
+                    // multiplePaths={this.multiplePaths}
+                    />
+                </Router>
+                {/* <button className='visualizeButton' onClick={() => this.handleOnVisualize()}>
                     Visualize
-                </button>
-                <div className="grid"
-                    onMouseMove={this.setMousePosition}>
-                    {grid.map((row, rowIdx) => {
-                        return (<div key={rowIdx}>
-                            {row.map((node, nodeIdx) => {
-                                const { row, col, isStart, isFinish, isWall, draggable } = node;
-                                return (
-                                    <Node
-                                        key={nodeIdx}
-                                        row={row}
-                                        col={col}
-                                        isStart={isStart}
-                                        isFinish={isFinish}
-                                        isWall={isWall}
-                                        mouseIsPressed={this.mouseIsPressed}
-                                        onMouseDown={(row, col) => this.handleMouseDown(row, col)}
-                                        onMouseEnter={(row, col) => this.handleMouseEnter(row, col)}
-                                        onMouseUp={() => this.handleMouseUp()}
-                                        draggable={draggable}
-                                        onDragStart={(e) => this.handleOnDrag(e, row, col)}  // Corrected prop name
-                                        onDrop={(e) => this.handleOnDrop(e, row, col)}  // Corrected prop name
-                                        onDragOver={(e) => this.handleDragOver(e)}  // Corrected prop name
-                                    >
-                                    </Node>
-                                );
-                            })}
-                        </div>
-                        );
-                    })}
-                </div>
+                </button> */}
+                <container>
+                    <div className="grid"
+                        onMouseMove={this.setMousePosition}>
+                        {grid.map((row, rowIdx) => {
+                            return (<div key={rowIdx}>
+                                {row.map((node, nodeIdx) => {
+                                    const { row, col, isStart, isFinish, isWall, draggable } = node;
+                                    return (
+                                        <Node
+                                            key={nodeIdx}
+                                            row={row}
+                                            col={col}
+                                            isStart={isStart}
+                                            isFinish={isFinish}
+                                            isWall={isWall}
+                                            mouseIsPressed={this.mouseIsPressed}
+                                            onMouseDown={(row, col) => this.handleMouseDown(row, col)}
+                                            onMouseEnter={(row, col) => this.handleMouseEnter(row, col)}
+                                            onMouseUp={() => this.handleMouseUp()}
+                                            draggable={draggable}
+                                            onDragStart={(e) => this.handleOnDrag(e, row, col)}  // Corrected prop name
+                                            onDrop={(e) => this.handleOnDrop(e, row, col)}  // Corrected prop name
+                                            onDragOver={(e) => this.handleDragOver(e)}  // Corrected prop name
+                                            nodeSize={nodeSize}
+                                        >
+                                        </Node>
+                                    );
+                                })}
+                            </div>
+                            );
+                        })}
+                    </div>
+                    <div className='status-log-container'>
+                        <StatusLog
+                            currentPrompt={currentPrompt}
+                        >
+
+                        </StatusLog>
+                    </div>
+
+                </container>
                 <motion.div className='cursor'
                     variants={variants}
                     animate="default"
-                >
-                </motion.div>
+                ></motion.div>
             </>
         );
     }

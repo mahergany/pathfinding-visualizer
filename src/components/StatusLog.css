@@ -1,0 +1,25 @@
+/* * {
+    
+} */
+
+.statusBox {
+    left: 1010px;
+    top: 180px;
+    width: 300px;
+    height: 200px;
+    background-color: rgb(183, 180, 180);
+    position: absolute;
+    text-align: start;
+    opacity: 80%;
+    border: 4px solid black;
+    /* border: 5px;
+    border-color: gray; */
+}
+
+.promptBox {
+    margin-left: 5px;
+    overflow-y: scroll;
+    border: 2px solid black;
+    width: 280px;
+    height: 120px;
+}
