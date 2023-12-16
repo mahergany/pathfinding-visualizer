@@ -3,10 +3,9 @@ import Node from './Node/Node';
 import { dijkstra, getNodesInShortestPathOrder } from '../algorithms/dijkstra';
 import { astar } from '../algorithms/astar';
 import { bfs } from '../algorithms/bfs';
-import { dfs } from '../algorithms/dfs';
 // import { lacam } from '../algorithms/lacam';
 import { recursiveDivisionMaze } from '../mazeAlgos/recursiveDivision';
-import { voronoiGeneration } from '../algorithms/dynamicfusion';
+// import { voronoiGeneration } from '../algorithms/dynamicfusion';
 import { EventHandler } from 'react';
 import { motion } from 'framer-motion';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
@@ -16,11 +15,6 @@ import StatusLog from '../components/StatusLog';
 import './PathfindingVisualizer.css';
 import NavBar from '../components/NavBar';
 
-//subtract one from each so that there is consistency with the array form
-// var START_NODE_ROW = 9
-// var START_NODE_COL = 9
-// var END_NODE_ROW = 9
-// var END_NODE_COL = 39
 
 export default class PathfindingVisualizer extends Component {
     constructor() {
@@ -359,26 +353,7 @@ export default class PathfindingVisualizer extends Component {
             this.visualize(currentAlgo);
             timeTaken = Date.now() - start;
         }
-        else if (currentAlgo === "Dynamic Fusion") {
-            let start = Date.now();
-            const obstacles = voronoiGeneration(grid, currentRows, currentColumns);
-            console.log(obstacles);
-            timeTaken = Date.now() - start;
-        }
-        else if (currentAlgo === "LaCAM") {
-            // this.setState({ multiplePaths: true });
-            //make an option for multiple start and end nodes
-            //assign different colors to each and change their path color asw
-            let start = Date.now();
-            // lacam(grid, startNode, finishNode);
-            timeTaken = Date.now() - start;
 
-        }
-        else if (currentAlgo === "Depth First Search") {
-            let start = Date.now();
-            this.visualize(currentAlgo);
-            timeTaken = Date.now() - start;
-        }
         currentPrompt.unshift(currentAlgo + " took " + timeTaken + "ms");
         this.setState(currentPrompt);
         console.log(currentPrompt);

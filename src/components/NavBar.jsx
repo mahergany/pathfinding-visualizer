@@ -78,7 +78,6 @@ export default class NavBar extends Component {
                                 <option>Dijkstra's</option>
                                 <option>A*</option>
                                 <option>Breadth First Search</option>
-                                <option>Depth First Search</option>
                             </select>
 
                             <label className='mazeLabel'>Maze:</label>
@@ -89,7 +88,6 @@ export default class NavBar extends Component {
                                 }}
                             >
                                 <option>None</option>
-                                <option>Random Walls</option>
                                 <option>Recursive Division</option>
                             </select>
                             <button className='mazeBtn'

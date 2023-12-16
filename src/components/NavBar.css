@@ -239,7 +239,6 @@
 
 /* Default styles for the slider */
 .slider {
-    -webkit-appearance: none;
     height: 10px;
     background: #d3d3d3;
     outline: none;
