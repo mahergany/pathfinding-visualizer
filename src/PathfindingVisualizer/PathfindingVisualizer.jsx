@@ -45,6 +45,7 @@ export default class PathfindingVisualizer extends Component {
             wallsToAnimate: [],
             isMouseOverGrid: false,
             showCursor: false,
+            mazeEnabled: false,
 
             //for lacam:
 
@@ -307,17 +308,19 @@ export default class PathfindingVisualizer extends Component {
     }
 
     handleOnVisualize() {
-        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW, startNode, finishNode, currentRows, currentColumns, currentPrompt } = this.state;
+        const { grid, START_NODE_ROW, START_NODE_COL, END_NODE_COL, END_NODE_ROW, startNode, finishNode, currentRows, currentColumns, currentPrompt, mazeEnabled } = this.state;
         const { currentAlgo } = this.state;
         let timeTaken = 0;
         let currentNode;
-        //clear colors
-        for (let r = 0; r < currentRows; r++) {
-            for (let c = 0; c < currentColumns; c++) {
-                currentNode = grid[r][c];
-                if ((r !== START_NODE_ROW && c !== START_NODE_COL) || (r !== END_NODE_ROW && c !== END_NODE_COL)) {
-                    if (!currentNode.isWall)
-                        document.getElementById(`node-${r}-${c}`).className = 'node node-unvisited';
+        if (!mazeEnabled) {
+            //clear colors
+            for (let r = 0; r < currentRows; r++) {
+                for (let c = 0; c < currentColumns; c++) {
+                    currentNode = grid[r][c];
+                    if ((r !== START_NODE_ROW && c !== START_NODE_COL) || (r !== END_NODE_ROW && c !== END_NODE_COL)) {
+                        if (!currentNode.isWall)
+                            document.getElementById(`node-${r}-${c}`).className = 'node node-unvisited';
+                    }
                 }
             }
         }
@@ -405,7 +408,7 @@ export default class PathfindingVisualizer extends Component {
                 const wall = walls[i];
                 document.getElementById(`node-${wall.row}-${wall.col}`).className =
                     'node node-wall';
-            }, 50 * i);
+            }, 10 * i);
         }
     }
 
@@ -415,13 +418,13 @@ export default class PathfindingVisualizer extends Component {
         // recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, orientation, surroundingWalls, type, currentRows, currentColumns)
         // recursiveDivisionMaze(this, 2, this.height - 3, 2, this.width - 3, "horizontal", false, "wall");
 
-        recursiveDivisionMaze(grid, 2, currentRows - 3, 2, currentColumns - 3, "horizontal", false, "wall", currentRows, currentColumns);
-        this.setState({ grid: grid });
-        if (grid.wallsToAnimate) {
-            this.animateWalls(grid.wallsToAnimate);
-        }
-        this.setState({ grid: grid });
+        let walls = recursiveDivisionMaze(grid, 2, currentRows - 3, 2, currentColumns - 3, "horizontal", false, "wall", currentRows, currentColumns);
+        console.log(walls);
+        let walls2 = walls.flat();
+        this.animateWalls(walls2);
+        // this.setState({ wallsToAnimate: walls });
     }
+
 
     changeAlgo(newAlgo) {
         //when the algo is changed, the grid is reset but the walls, the starting and the ending nodes are retained
@@ -469,8 +472,10 @@ export default class PathfindingVisualizer extends Component {
         })
         if (newMaze == 'Simple')
             this.visualizeSimpleMaze();
-        if (newMaze == 'Recursive Division')
+        if (newMaze == 'Recursive Division') {
+            this.setState({ mazeEnabled: true });
             this.visualizeRecursiveDivision();
+        }
     }
 
     changeSpeed(newSpeed) {

@@ -11,7 +11,6 @@ export default class NavBar extends Component {
         super(props);
         this.state = {
             sidebar: true,
-            // sliderValue: 20,
         };
         this.handleSideBar = this.handleSideBar.bind(this);
     }
@@ -80,8 +79,6 @@ export default class NavBar extends Component {
                                 <option>A*</option>
                                 <option>Breadth First Search</option>
                                 <option>Depth First Search</option>
-                                <option>LaCAM</option>
-                                <option>Dynamic Fusion</option>
                             </select>
 
                             <label className='mazeLabel'>Maze:</label>
@@ -92,7 +89,6 @@ export default class NavBar extends Component {
                                 }}
                             >
                                 <option>None</option>
-                                <option>Random Weighted</option>
                                 <option>Random Walls</option>
                                 <option>Prim's</option>
                                 <option>Recursive Division</option>
