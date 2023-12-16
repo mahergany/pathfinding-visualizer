@@ -6,11 +6,14 @@ export function recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, 
         return;
     }
 
+    if (rowEnd < rowStart - 2 || colEnd < colStart - 2)
+        return;
+
 
     // setting boundaries
     if (!surroundingWalls) {
-        console.log("recur div first call");
-
+        // console.log("recur div first call");
+        walls.splice(0, walls.length);
         for (let r = 0; r < currentRows; r++) {
             for (let c = 0; c < currentColumns; c++) {
                 if (r == 0 || r == currentRows - 1 || c == 0 || c == currentColumns - 1) {
@@ -20,12 +23,12 @@ export function recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, 
                 }
             }
         }
-        console.log(walls);
+        // console.log(walls);
         surroundingWalls = true;
     }
 
     if (orientation === "horizontal") {
-        console.log("horizontall");
+        // console.log("horizontall");
         let possibleRows = [];
         for (let number = rowStart; number <= rowEnd; number += 2) {
             possibleRows.push(number);
@@ -45,9 +48,9 @@ export function recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, 
                 if (node.row === currentRow && node.col !== colRandom && node.col >= colStart - 1 && node.col <= colEnd + 1) {
                     if (!node.isStart && !node.isEnd) {
                         walls.push(node);
-                        console.log(walls);
+                        // console.log(walls);
                         node.isWall = true;
-                        console.log(node);
+                        // console.log(node);
                         if (node.isWall) {
                             node.distance = 0;
                         }
@@ -66,7 +69,7 @@ export function recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, 
             recursiveDivisionMaze(grid, currentRow + 2, rowEnd, colStart, colEnd, "vertical", surroundingWalls, type, currentRows, currentColumns);
         }
     } else {
-        console.log("verticalll");
+        // console.log("verticalll");
         let possibleCols = [];
         for (let number = colStart; number <= colEnd; number += 2) {
             possibleCols.push(number);
@@ -79,14 +82,14 @@ export function recursiveDivisionMaze(grid, rowStart, rowEnd, colStart, colEnd, 
         let randomRowIndex = Math.floor(Math.random() * possibleRows.length);
         let currentCol = possibleCols[randomColIndex];
         let rowRandom = possibleRows[randomRowIndex];
-        //for each grid will give me row !!!
+
+        //for each grid will give each row !!!
         grid.forEach(cRow => {
             cRow.forEach(node => {
                 if (node.col === currentCol && node.row !== rowRandom && node.row >= rowStart - 1 && node.row <= rowEnd + 1) {
                     if (!node.isStart && !node.isEnd) {
                         walls.push(node);
                         node.isWall = true;
-                        console.log(walls);
                         if (node.isWall) {
                             node.distance = 0;
                         }

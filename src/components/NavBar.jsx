@@ -21,7 +21,7 @@ export default class NavBar extends Component {
 
     render() {
         const { sidebar } = this.state;
-        const { onClick, changeAlgo, changeSpeed, changeNode, handleRowChange, handleColumnChange, handleSliderChange, currentRows, handleOnVisualize, multiplePaths, changeMaze } = this.props;
+        const { onClick, changeAlgo, changeSpeed, changeNode, handleRowChange, handleColumnChange, handleSliderChange, currentRows, handleOnVisualize, multiplePaths, changeMaze, onClickGenerate } = this.props;
         return (
             <>
                 <IconContext.Provider value={{ color: '#fff' }}>
@@ -90,12 +90,13 @@ export default class NavBar extends Component {
                             >
                                 <option>None</option>
                                 <option>Random Walls</option>
-                                <option>Prim's</option>
                                 <option>Recursive Division</option>
                             </select>
+                            <button className='mazeBtn'
+                                onClick={() => { onClickGenerate() }}>Generate</button>
 
 
-                            <label className='nodeLabel'>Node:</label>
+                            {/* <label className='nodeLabel'>Node:</label>
                             <select className='nodesSelection'
                                 onChange={(e) => {
                                     let type;
@@ -132,7 +133,7 @@ export default class NavBar extends Component {
                                 {/* {multiplePaths && <option>Start</option>}
                                 {multiplePaths && <option>Finish</option>} */}
 
-                            </select>
+                            {/* </select> */}
 
                         </ul>
                     </nav>
@@ -142,7 +143,7 @@ export default class NavBar extends Component {
                         </Link>
                         <h2 className='title'>Pathfinding Visualizer</h2>
                     </div> */}
-                </IconContext.Provider>
+                </IconContext.Provider >
             </>
         )
     }

@@ -190,6 +190,20 @@
     border-radius: 8px;
 }
 
+.mazeBtn {
+    background-color: black;
+    padding: 6px 10px;
+    border: 2px solid white;
+    border-radius: 8px;
+    margin-left: 2px;
+}
+
+.mazeBtn:hover {
+    background-color: gray;
+    border-color: black;
+}
+
+
 .clearBtn:hover {
     background-color: gray;
     border-color: black;
