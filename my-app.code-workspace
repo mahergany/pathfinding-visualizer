@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "../my-app"
+		},
+		{
+			"name": "Pathfinding-Visualizer",
+			"path": "../my-app/Pathfinding-Visualizer"
+		}
+	],
+	"settings": {}
+}
