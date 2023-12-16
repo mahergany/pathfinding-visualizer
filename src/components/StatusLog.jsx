@@ -13,7 +13,7 @@ export default class StatusLog extends Component {
         return (
             <>
                 <div className='statusBox'>
-                    <h2>Status Log:</h2>
+                    <h2 className='statusLabel'>Status Log:</h2>
                     {/* {currentPrompts.map(
                         (i) => {
                             return currentPrompts[i] + '\n';

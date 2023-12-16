@@ -16,6 +16,10 @@
     border-color: gray; */
 }
 
+.statusLabel {
+    color: black;
+}
+
 .promptBox {
     margin-left: 5px;
     overflow-y: scroll;
